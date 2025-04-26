@@ -50,25 +50,51 @@ const tempWatchedData = [
 const average = (arr) =>
 	arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0)
 
+// structural component
 export default function App() {
+	const [movies, setMovies] = useState(tempMovieData)
+	const [watched, setWatched] = useState(tempWatchedData)
+
 	return (
 		<>
-			<NavBar />
-			<Main />
+			<NavBar>
+				<Search />
+				<Numresults movies={movies} />
+			</NavBar>
+			<Main>
+				{/* we do this when we accept components as props in Box we use the name Element for our components */}
+				<Box element={<MovieList movies={movies} />} />
+				<Box
+					element={
+						<>
+							<WatchedSummary watched={watched} />
+							<WatchedMovieList watched={watched} />
+						</>
+					}
+				/>
+
+				{/* we do this if we accept children in our Box
+        <Box>
+					<MovieList movies={movies} />
+				</Box>
+				<Box>
+					<WatchedSummary watched={watched} />
+					<WatchedMovieList watched={watched} />
+				</Box> */}
+			</Main>
 		</>
 	)
 }
-
-function NavBar() {
+// structural component
+function NavBar({ children }) {
 	return (
 		<nav className="nav-bar">
 			<Logo />
-			<Search />
-			<Numresults />
+			{children}
 		</nav>
 	)
 }
-
+// presentational component
 function Logo() {
 	return (
 		<div className="logo">
@@ -78,13 +104,16 @@ function Logo() {
 	)
 }
 
-function Numresults() {
+// presentational component
+function Numresults({ movies }) {
 	return (
 		<p className="num-results">
-			Found <strong>X</strong> results
+			Found <strong>{movies.length}</strong> results
 		</p>
 	)
 }
+
+// stateful component
 function Search() {
 	const [query, setQuery] = useState("")
 
@@ -98,35 +127,12 @@ function Search() {
 		/>
 	)
 }
-
-function Main() {
-	return (
-		<main className="main">
-			<Listbox />
-			<Watchedbox />
-		</main>
-	)
+// structural component
+function Main({ children }) {
+	return <main className="main">{children}</main>
 }
-function Watchedbox() {
-	const [watched, setWatched] = useState(tempWatchedData)
-	const [isOpen2, setIsOpen2] = useState(true)
 
-	return (
-		<div className="box">
-			<button
-				className="btn-toggle"
-				onClick={() => setIsOpen2((open) => !open)}>
-				{isOpen2 ? "–" : "+"}
-			</button>
-			{isOpen2 && (
-				<>
-					<WatchedSummary watched={watched} />
-					<WatchedMovieList watched={watched} />
-				</>
-			)}
-		</div>
-	)
-}
+// presentational component
 function WatchedMovieList({ watched }) {
 	return (
 		<ul className="list">
@@ -139,7 +145,7 @@ function WatchedMovieList({ watched }) {
 		</ul>
 	)
 }
-
+// presentational component
 function WatchedMovie({ movie }) {
 	return (
 		<li>
@@ -166,6 +172,7 @@ function WatchedMovie({ movie }) {
 	)
 }
 
+// presentational component
 function WatchedSummary({ watched }) {
 	const avgImdbRating = average(watched.map((movie) => movie.imdbRating))
 	const avgUserRating = average(watched.map((movie) => movie.userRating))
@@ -194,22 +201,45 @@ function WatchedSummary({ watched }) {
 		</div>
 	)
 }
-function Listbox() {
-	const [isOpen1, setIsOpen1] = useState(true)
+//  stateful component
+function Box({ element }) {
+	const [isOpen, setIsOpen] = useState(true)
 	return (
 		<div className="box">
 			<button
 				className="btn-toggle"
-				onClick={() => setIsOpen1((open) => !open)}>
-				{isOpen1 ? "–" : "+"}
+				onClick={() => setIsOpen((open) => !open)}>
+				{isOpen ? "–" : "+"}
 			</button>
-			{isOpen1 && <MovieList />}
+			{isOpen && element}
 		</div>
 	)
 }
-function MovieList() {
-	const [movies, setMovies] = useState(tempMovieData)
 
+// stateful component
+/* 
+function Watchedbox() {
+	const [isOpen2, setIsOpen2] = useState(true)
+
+	return (
+		<div className="box">
+			<button
+				className="btn-toggle"
+				onClick={() => setIsOpen2((open) => !open)}>
+				{isOpen2 ? "–" : "+"}
+			</button>
+			{isOpen2 && (
+				<>
+					<WatchedSummary watched={watched} />
+					<WatchedMovieList watched={watched} />
+				</>
+			)}
+		</div>
+	)
+}
+ */
+// stateful component
+function MovieList({ movies }) {
 	return (
 		<ul className="list">
 			{movies?.map((movie) => (
@@ -221,7 +251,7 @@ function MovieList() {
 		</ul>
 	)
 }
-
+// presentational component
 function Movie({ movie }) {
 	return (
 		<li>

@@ -8,11 +8,17 @@ const average = (arr) =>
 // structural component
 export default function App() {
 	const [movies, setMovies] = useState([]);
-	const [watched, setWatched] = useState([]);
 	const [isLoading, setisLoading] = useState(false);
 	const [error, setError] = useState('');
 	const [query, setQuery] = useState('');
 	const [selectedId, setSelectedId] = useState(null);
+	// const [watched, setWatched] = useState([]);
+
+	// localstorage getItem
+	const [watched, setWatched] = useState(() => {
+		const storedValue = localStorage.getItem('watched');
+		return JSON.parse(storedValue);
+	});
 
 	const tempQuery = 'interstellar';
 
@@ -25,10 +31,17 @@ export default function App() {
 	}
 	function handleAddWatched(movie) {
 		setWatched([...watched, movie]);
+		// // first we pass in the name of the key, then the data
+		// localStorage.setItem('watched', JSON.stringify([...watched, movie]));
 	}
 	function handleDeleteWatched(id) {
 		setWatched((watched) => watched.filter((movie) => movie.imdb !== id));
 	}
+
+	// local storage
+	useEffect(() => {
+		localStorage.setItem('watched', JSON.stringify(watched));
+	}, [watched]);
 
 	useEffect(() => {
 		// abort controller || how to handle fetch
@@ -176,6 +189,11 @@ function Numresults({ movies }) {
 
 // stateful component
 function Search({ query, setQuery }) {
+	useEffect(() => {
+		const el = document.querySelector('.search');
+		el.focus();
+	}, []);
+
 	return (
 		<input
 			className="search"

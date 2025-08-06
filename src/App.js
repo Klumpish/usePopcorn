@@ -193,18 +193,27 @@ function Search({ query, setQuery }) {
 
 	useEffect(() => {
 		function callback(e) {
-			if (document.activeElement === inputEl.current) return;
+			// if (document.activeElement === inputEl.current) return;
 
 			if (e.code === 'Enter') {
-				inputEl.current.focus();
-				setQuery('');
+				if (document.activeElement === inputEl.current) {
+					return;
+				} else {
+					inputEl.current.focus();
+					setQuery('');
+				}
+			}
+			if (e.code === 'Escape') {
+				if (document.activeElement === inputEl.current) {
+					inputEl.current.blur();
+				}
 			}
 		}
 
 		document.addEventListener('keydown', callback);
 
-		return () => document.addEventListener('keydown', callback);
-	}, []);
+		return () => document.removeEventListener('keydown', callback);
+	}, [setQuery]);
 
 	// useEffect(() => {
 	// 	const el = document.querySelector('.search');

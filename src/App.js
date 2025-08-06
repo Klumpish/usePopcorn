@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import StartRating from './components/StarRating';
 // working
 
@@ -189,10 +189,16 @@ function Numresults({ movies }) {
 
 // stateful component
 function Search({ query, setQuery }) {
+	const inputEl = useRef(null);
+
 	useEffect(() => {
-		const el = document.querySelector('.search');
-		el.focus();
+		inputEl.current.focus();
 	}, []);
+
+	// useEffect(() => {
+	// 	const el = document.querySelector('.search');
+	// 	el.focus();
+	// }, []);
 
 	return (
 		<input
@@ -201,6 +207,7 @@ function Search({ query, setQuery }) {
 			placeholder="Search movies..."
 			value={query}
 			onChange={(e) => setQuery(e.target.value)}
+			ref={inputEl}
 		/>
 	);
 }

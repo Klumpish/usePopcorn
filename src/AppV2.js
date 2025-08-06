@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import StartRating from './components/StarRating';
-// working
 
 const average = (arr) =>
 	arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -263,6 +262,23 @@ function SelectedMovie({ selectedId, onCLoseMovie, onAddWatched, watched }) {
 		Genre: genre,
 	} = movie;
 
+	// breaking the state
+
+	// if (imdbRating > 8) [isTop, setIsTop] = useState(true);
+
+	// if (imdbRating > 8) return <p>Greatest ever!</p>;
+
+	// const [isTop, setIsTop] = useState(imdbRating > 8);
+	// console.log(isTop);
+	// useEffect(() => {
+	// 	setIsTop(imdbRating > 8);
+	// }, [imdbRating]);
+
+	const isTop = imdbRating > 8;
+	console.log(isTop);
+
+	// const [avgRating, setAvgRating] = useState(0);
+
 	function handleAdd() {
 		const newWatchedMovie = {
 			imdb: selectedId,
@@ -275,6 +291,9 @@ function SelectedMovie({ selectedId, onCLoseMovie, onAddWatched, watched }) {
 		};
 		onAddWatched(newWatchedMovie);
 		onCLoseMovie();
+
+		// setAvgRating(Number(imdbRating));
+		// setAvgRating((avgRating) => (avgRating + userRating) / 2);
 	}
 
 	// listening for keydown on esc
@@ -345,6 +364,8 @@ function SelectedMovie({ selectedId, onCLoseMovie, onAddWatched, watched }) {
 							</p>
 						</div>
 					</header>
+
+					{/* <p>{avgRating}</p> */}
 
 					<section>
 						<div className="rating">

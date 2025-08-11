@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import StartRating from './components/StarRating';
+import { useMovies } from './hooks/useMovies';
 // working
 
 const average = (arr) =>
@@ -7,12 +8,10 @@ const average = (arr) =>
 
 // structural component
 export default function App() {
-	const [movies, setMovies] = useState([]);
-	const [isLoading, setisLoading] = useState(false);
-	const [error, setError] = useState('');
 	const [query, setQuery] = useState('');
 	const [selectedId, setSelectedId] = useState(null);
 	// const [watched, setWatched] = useState([]);
+	const { movies, isLoading, error } = useMovies(query, handleCloseMovie);
 
 	// localstorage getItem
 	const [watched, setWatched] = useState(() => {
@@ -43,53 +42,7 @@ export default function App() {
 		localStorage.setItem('watched', JSON.stringify(watched));
 	}, [watched]);
 
-	useEffect(() => {
-		// abort controller || how to handle fetch
-		const controller = new AbortController();
-
-		async function fetchMovies() {
-			try {
-				setisLoading(true);
-				setError('');
-				const res = await fetch(
-					`http://www.omdbapi.com/?apikey=${process.env.REACT_APP_OMDB_API}&s=${query}`,
-					// here we add our controller
-					{
-						signal: controller.signal,
-					}
-				);
-				if (!res.ok)
-					throw new Error('Something went wrong with fetching movies');
-
-				const data = await res.json();
-				if (data.Response === 'False') throw new Error('Movie not found');
-
-				setMovies(data.Search);
-				setError('');
-			} catch (err) {
-				// how to deal with abortError coming from controller.abort()
-				if (err.name !== 'AbortError') {
-					console.log(err.message);
-					setError(err.message);
-				}
-			} finally {
-				setisLoading(false);
-			}
-		}
-
-		if (query.length < 3) {
-			setMovies([]);
-			setError('');
-			return;
-		}
-
-		handleCloseMovie();
-		fetchMovies();
-
-		return () => {
-			controller.abort();
-		};
-	}, [query]);
+	// #TODO
 
 	return (
 		<>

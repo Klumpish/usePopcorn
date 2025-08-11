@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import StartRating from './components/StarRating';
 import { useMovies } from './hooks/useMovies';
+import { useLocalStorageState } from './hooks/useLocalStorageState';
+import { useKey } from './hooks/useKey';
 // working
 
 const average = (arr) =>
@@ -10,14 +12,8 @@ const average = (arr) =>
 export default function App() {
 	const [query, setQuery] = useState('');
 	const [selectedId, setSelectedId] = useState(null);
-	// const [watched, setWatched] = useState([]);
 	const { movies, isLoading, error } = useMovies(query, handleCloseMovie);
-
-	// localstorage getItem
-	const [watched, setWatched] = useState(() => {
-		const storedValue = localStorage.getItem('watched');
-		return JSON.parse(storedValue);
-	});
+	const [watched, setWatched] = useLocalStorageState([], 'watched');
 
 	const tempQuery = 'interstellar';
 
@@ -36,11 +32,6 @@ export default function App() {
 	function handleDeleteWatched(id) {
 		setWatched((watched) => watched.filter((movie) => movie.imdb !== id));
 	}
-
-	// local storage
-	useEffect(() => {
-		localStorage.setItem('watched', JSON.stringify(watched));
-	}, [watched]);
 
 	// #TODO
 
@@ -144,29 +135,35 @@ function Numresults({ movies }) {
 function Search({ query, setQuery }) {
 	const inputEl = useRef(null);
 
-	useEffect(() => {
-		function callback(e) {
-			// if (document.activeElement === inputEl.current) return;
+	useKey('Enter', function () {
+		if (document.activeElement === inputEl.current) return;
+		inputEl.current.focus();
+		setQuery('');
+	});
 
-			if (e.code === 'Enter') {
-				if (document.activeElement === inputEl.current) {
-					return;
-				} else {
-					inputEl.current.focus();
-					setQuery('');
-				}
-			}
-			if (e.code === 'Escape') {
-				if (document.activeElement === inputEl.current) {
-					inputEl.current.blur();
-				}
-			}
-		}
+	// useEffect(() => {
+	// 	function callback(e) {
+	// 		// if (document.activeElement === inputEl.current) return;
 
-		document.addEventListener('keydown', callback);
+	// 		if (e.code === 'Enter') {
+	// 			if (document.activeElement === inputEl.current) {
+	// 				return;
+	// 			} else {
+	// 				inputEl.current.focus();
+	// 				setQuery('');
+	// 			}
+	// 		}
+	// 		if (e.code === 'Escape') {
+	// 			if (document.activeElement === inputEl.current) {
+	// 				inputEl.current.blur();
+	// 			}
+	// 		}
+	// 	}
 
-		return () => document.removeEventListener('keydown', callback);
-	}, [setQuery]);
+	// 	document.addEventListener('keydown', callback);
+
+	// 	return () => document.removeEventListener('keydown', callback);
+	// }, [setQuery]);
 
 	// useEffect(() => {
 	// 	const el = document.querySelector('.search');
@@ -196,7 +193,7 @@ function WatchedMovieList({ watched, onDelete }) {
 			{watched.map((movie) => (
 				<WatchedMovie
 					movie={movie}
-					key={movie.imdbID}
+					key={movie.imdb}
 					onDelete={onDelete}
 				/>
 			))}
@@ -282,22 +279,7 @@ function SelectedMovie({ selectedId, onCLoseMovie, onAddWatched, watched }) {
 		onCLoseMovie();
 	}
 
-	// listening for keydown on esc
-	useEffect(() => {
-		function callback(e) {
-			if (e.code === 'Escape') {
-				onCLoseMovie();
-			}
-		}
-
-		document.addEventListener('keydown', callback);
-
-		// our clean up must be the same as our add, thats why we make a function
-
-		return () => {
-			document.removeEventListener('keydown', callback);
-		};
-	}, [onCLoseMovie]);
+	useKey('Escape', onCLoseMovie);
 
 	useEffect(() => {
 		async function getMovieDetails() {
